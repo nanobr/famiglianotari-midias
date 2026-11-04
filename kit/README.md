@@ -25,10 +25,18 @@ Copie `exemplo_jorge.py` e altere:
 
 Peças prontas em `draw.py`: `background`, `counter`, `person_body` / `person_head` / `person_hands` (expressões `happy`, `worried`, `shocked`, `love`; `mouth` para falar e `blink` para piscar), `jar` (o Jorge, com bolhas animadas), `bubble` (balão com efeito pop e digitação), `heart`, `sweat` e `shock_marks`, além das curvas `ease_out_back` e `ease_out`.
 
-## Elenco fixo
+## Elenco fixo (família Notari)
 
-- **Eu**: cabelo escuro, camisa azul e avental branco.
-- **Amigo**: cabelo ruivo cacheado e camisa verde.
-- **Jorge**: o levain no pote com pano xadrez vermelho, carente e sempre com fome.
+Em `family.py`, todos baseados nos avatares da família:
 
-Novos personagens podem usar `person_*` com outras cores (dicionário igual a `EU` e `AMIGO`).
+- **NANO** (pai, pizzaiolo da casa): cabelo escuro, barba, camisa azul e avental com pizza.
+- **CLEIDE** (Cleideane, esposa): cabelo preto liso e longo, óculos redondos dourados, blusa vinho de gola alta.
+- **CAMMY** (filha): cabelo ruivo cacheado, óculos redondos, cardigã claro e colar.
+- **ISIS** (Ísis, filha caçula): cabelo escuro, tiara azul com laço e blusa rosa. É menor, então use `hy` mais baixo (~650).
+- **Jorge** (`jar` em `draw.py`): o levain no pote com pano xadrez, carente e sempre com fome.
+
+Use `fam(ctx, x, hy, NANO, "expressão")`, depois `counter(ctx)` e `fam_hands(...)`. As expressões são `happy`, `worried`, `shocked`, `love`, `angry` e `smug`; para falar, use o parâmetro `mouth`.
+Os adereços são `pizza`, `plate_with_slice`, `slice_in_hand`, `ketchup`, `splat`, `broken_heart` e `logo`. Com `LOGO = True` no episódio, o logo da Famiglia Notari aparece no título.
+Personagens extras (amigos, vizinhos, avós) podem ser criados com o mesmo dicionário, mudando cores e estilo de cabelo (`short`, `long_straight`, `long_curly`, `kid`).
+
+Os episódios de exemplo estão em `episodios/`. Prefira a família como elenco principal e use o Jorge como coadjuvante recorrente.

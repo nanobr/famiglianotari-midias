@@ -19,12 +19,25 @@ def comic(path, w=1080, h=1350):
     crop_top, crop_bot = 10, 1200
     ph = (crop_bot - crop_top) * s
     top = h - (2 * ph + 2 * m)
-    # title
-    set_font(ctx, 54)
+    # title (with the round logo on the left when the episode asks for it)
+    use_logo = getattr(ep, "LOGO", False)
+    d = min(top - 24, 150)
+    x0 = m + d + 20 if use_logo else m
+    if use_logo:
+        from family import logo
+        logo(ctx, m + d / 2 + 4, top / 2 + 2, d)
+    size = 54
+    lines = wrap(ctx, ep.HOOK, size, w - x0 - m)
+    while len(lines) > 1 and size > 40:
+        size -= 2
+        lines = wrap(ctx, ep.HOOK, size, w - x0 - m)
+    set_font(ctx, size)
     ctx.set_source_rgba(*INK)
-    tw = ctx.text_extents(ep.HOOK).x_advance
-    ctx.move_to((w - tw) / 2, top / 2 + 20)
-    ctx.show_text(ep.HOOK)
+    lh = size * 1.15
+    for i, l in enumerate(lines):
+        tw = ctx.text_extents(l).x_advance
+        ctx.move_to(x0 + (w - x0 - m - tw) / 2, top / 2 + size * 0.36 + (i - (len(lines) - 1) / 2) * lh)
+        ctx.show_text(l)
     for i, ((fn, _), ft) in enumerate(zip(ep.SCENES, ep.FINAL_T)):
         col, row = i % 2, i // 2
         x = m + col * (pw + m)
@@ -53,14 +66,19 @@ def hook_band(ctx):
     ctx.move_to(0, BAND_H)
     ctx.line_to(RW, BAND_H)
     ctx.stroke()
-    lines = wrap(ctx, ep.HOOK, 66, 900)
-    set_font(ctx, 66)
+    use_logo = getattr(ep, "LOGO", False)
+    x0 = 250 if use_logo else 90
+    if use_logo:
+        from family import logo
+        logo(ctx, 140, 200, 190)
+    lines = wrap(ctx, ep.HOOK, 64, RW - x0 - 50)
+    set_font(ctx, 64)
     ctx.set_source_rgba(1, 1, 1, 1)
-    lh = 80
-    y0 = 200 - (len(lines) - 1) * lh / 2
+    lh = 78
+    y0 = 222 - (len(lines) - 1) * lh / 2
     for i, l in enumerate(lines):
         tw = ctx.text_extents(l).x_advance
-        ctx.move_to((RW - tw) / 2, y0 + i * lh)
+        ctx.move_to(x0 + (RW - x0 - 50 - tw) / 2, y0 + i * lh)
         ctx.show_text(l)
 
 
