@@ -1,98 +1,101 @@
-"""Amor: o teste da última fatia (Nano e Cleideane)."""
+"""Amor: o teste da última fatia (Nano e Cleideane) — com os avatares reais."""
 import math
 from draw import *
-from family import *
+from family import plate_with_slice, slice_in_hand, broken_heart
+from avatars import *
 
 HOOK = "O verdadeiro teste do amor..."
 END_CARD = "Você daria a última fatia?"
 END_CARD_AT = 3.4
 LOGO = True
 
-CL_X, NA_X, HY = 280, 800, 560
-PZ_X, PZ_Y = 545, 968
+CL, NA = 300, 905          # centros de Cleide e Nano (Nano espelhado, encostado à direita)
+PL_X, PL_Y = 630, 978
 
 
-def blink_at(t, *ms):
-    return 0.1 if any(m <= t < m + 0.15 for m in ms) else 1.0
+def talk_bob(t, a, b):
+    return 10 * abs(math.sin(t * 14)) if a <= t <= b else 0.0
 
 
-def talk(t, a, b):
-    return 0.5 + 0.5 * math.sin(t * 28) if a <= t <= b else 0.0
+def blink_none(*_):
+    return 1.0
 
 
-def stage(ctx, t, cl_expr, na_expr, cl_mouth=0.0, na_mouth=0.0, cl_blink=1.0, na_blink=1.0,
-          slices=1, na_hands=(-1, 1), na_shake=0.0):
+def stage(ctx, t, cl_lift=0.0, na_lift=0.0, na_shake=0.0, na_squash=1.0, cl_rot=0.0, plate=1):
     background(ctx)
-    fam_body(ctx, CL_X, HY, CLEIDE)
-    fam_body(ctx, NA_X + na_shake, HY, NANO)
-    fam_head(ctx, CL_X, HY, CLEIDE, cl_expr, cl_blink, cl_mouth, t)
-    fam_head(ctx, NA_X + na_shake, HY, NANO, na_expr, na_blink, na_mouth, t)
+    av(ctx, "cleide", CL, lift=cl_lift, rot=cl_rot)
+    av(ctx, "nano", NA, flip=True, lift=na_lift, shake=na_shake, squash=na_squash)
+    pillar(ctx, "right")
+    pillar(ctx, "left")
     counter(ctx)
-    fam_hands(ctx, CL_X, HY, CLEIDE)
-    fam_hands(ctx, NA_X + na_shake, HY, NANO, na_hands)
-    if slices:
-        plate_with_slice(ctx, PZ_X, PZ_Y, 1.0, sparkle=t if slices == 2 else None)
-    else:
-        ellipse(ctx, PZ_X, PZ_Y, 150, 58)
+    if plate == 0:
+        ellipse(ctx, PL_X, PL_Y, 150, 58)
         fill_stroke(ctx, (1, 1, 1, 1))
-        ellipse(ctx, PZ_X, PZ_Y, 108, 38)
+        ellipse(ctx, PL_X, PL_Y, 108, 38)
         ctx.set_source_rgba(*hexc("#EFE8DE"))
         ctx.fill()
+    else:
+        plate_with_slice(ctx, PL_X, PL_Y, 1.0, sparkle=t if plate == 2 else None)
 
 
-# 1 — the question
+# 1 — a pergunta
 S1 = 3.6
 
 
 def s1(ctx, t):
-    stage(ctx, t, "happy", "happy", cl_mouth=talk(t, 0.4, 1.6), na_blink=blink_at(t, 2.6))
-    bubble(ctx, "Amor, você me ama mais que pizza?", 40, 60, 760, 76, (300, 420),
+    stage(ctx, t, cl_lift=talk_bob(t, 0.4, 1.6))
+    bubble(ctx, "Amor, você me ama mais que pizza?", 40, 50, 760, 76, head_top("cleide", CL),
            pop=ease_out_back((t - 0.3) / 0.3), chars=(t - 0.4) / 1.2)
 
 
-# 2 — the easy answer
+# 2 — a resposta fácil
 S2 = 3.2
 
 
 def s2(ctx, t):
-    stage(ctx, t, "love", "love", na_mouth=talk(t, 0.35, 1.1))
-    for k in range(2):
-        ph = (t * 0.5 + k * 0.5) % 1.0
-        heart(ctx, 545 + 14 * math.sin(t * 3 + k), 600 - 220 * ph, 0.5 + 0.4 * ph, 1 - ph)
-    bubble(ctx, "Claro! Muito mais!", 1040, 70, 700, 84, (790, 420),
+    stage(ctx, t, na_lift=talk_bob(t, 0.35, 1.1))
+    for k in range(3):
+        ph = (t * 0.5 + k / 3) % 1.0
+        heart(ctx, 600 + 30 * math.sin(t * 3 + k * 2), 640 - 240 * ph, 0.5 + 0.45 * ph, 1 - ph)
+    bubble(ctx, "Claro! Muito mais!", 1040, 60, 700, 84, head_top("nano", NA, flip=True),
            pop=ease_out_back((t - 0.25) / 0.3), chars=(t - 0.35) / 0.8, align="right")
 
 
-# 3 — the trap
+# 3 — a armadilha
 S3 = 3.6
 
 
 def s3(ctx, t):
-    na = "shocked" if t > 2.2 else "happy"
-    stage(ctx, t, "smug", na, cl_mouth=talk(t, 0.4, 1.6), slices=2)
+    hit = (t - 2.2) / 0.25
+    shake = 14 * math.sin(t * 55) * max(0.0, 1 - (t - 2.2) / 0.7) if t > 2.2 else 0.0
+    squash = 1 + 0.06 * math.sin(clamp(hit) * math.pi) if t > 2.2 else 1.0
+    stage(ctx, t, cl_lift=talk_bob(t, 0.4, 1.6), na_shake=shake, na_squash=squash, plate=2)
     if t > 2.2:
-        shock_marks(ctx, NA_X, HY, ease_out_back((t - 2.2) / 0.25))
-    bubble(ctx, "Então me dá a última fatia.", 40, 60, 760, 76, (300, 420),
+        hx, hy = head_c("nano", NA, flip=True)
+        shock_fx(ctx, hx + shake, hy, ease_out_back(hit), r0=230)
+        exclaim_fx(ctx, hx - 300, hy - 90, ease_out_back(hit))
+    bubble(ctx, "Então me dá a última fatia.", 40, 50, 760, 76, head_top("cleide", CL),
            pop=ease_out_back((t - 0.3) / 0.3), chars=(t - 0.4) / 1.2)
 
 
-# 4 — the truth
+# 4 — a verdade
 S4 = 5.6
 
 
 def s4(ctx, t):
     gap = 4 + 26 * ease_out((t - 2.6) / 0.4)
-    stage(ctx, t, "angry", "worried", na_mouth=talk(t, 0.5, 2.3), slices=0, na_hands=(1,))
-    # Nano hugs the slice
-    slice_in_hand(ctx, NA_X - 170, 700, 1.0, -0.5)
-    circle(ctx, NA_X - 175, COUNTER_Y - 150, 40)
-    fill_stroke(ctx, NANO["skin"])
-    k = ease_out_back((t - 1.2) / 0.3)
-    if k > 0.01:
-        sweat(ctx, NA_X + 112, HY - 70, k)
+    stage(ctx, t, na_lift=talk_bob(t, 0.5, 2.3), cl_rot=-0.03, plate=0)
+    # Nano agarrado à fatia
+    circle(ctx, 800, 728, 40)
+    fill_stroke(ctx, hexc("#F3C6A5"))
+    slice_in_hand(ctx, 760, 760, 1.05, -0.45)
+    tears_fx(ctx, eye_pts("nano", NA, flip=True), t)
+    hx, hy = head_c("cleide", CL)
+    anger_fx(ctx, hx + 115, hy - 150, 1.8 * ease_out_back((t - 2.6) / 0.3))
     if t > 2.6:
-        broken_heart(ctx, 545, 560, 1.1, gap)
-    bubble(ctx, "Te amo... mas essa massa fermentou 72 horas!", 1040, 40, 980, 72, (800, 420),
+        broken_heart(ctx, 590, 600, 1.1, gap)
+    bubble(ctx, "Te amo... mas essa massa fermentou 72 horas!", 1040, 30, 980, 72,
+           head_top("nano", NA, flip=True),
            pop=ease_out_back((t - 0.3) / 0.3), chars=(t - 0.45) / 1.9, align="right")
 
 

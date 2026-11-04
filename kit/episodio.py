@@ -148,7 +148,7 @@ def render_scene(idx, path, fps=30):
 def main():
     import importlib.util, shutil
     global ep
-    src, out = sys.argv[1], sys.argv[2]
+    src, out = sys.argv[1], os.path.abspath(sys.argv[2])
     os.makedirs(out, exist_ok=True)
     spec = importlib.util.spec_from_file_location("episode", src)
     ep = importlib.util.module_from_spec(spec)

@@ -27,16 +27,17 @@ Peças prontas em `draw.py`: `background`, `counter`, `person_body` / `person_he
 
 ## Elenco fixo (família Notari)
 
-Em `family.py`, todos baseados nos avatares da família:
+**Use sempre os avatares reais** (`avatars.py`, imagens em `assets/avatares/`), recortados dos stickers da família:
 
-- **NANO** (pai, pizzaiolo da casa): cabelo escuro, barba, camisa azul e avental com pizza.
-- **CLEIDE** (Cleideane, esposa): cabelo preto liso e longo, óculos redondos dourados, blusa vinho de gola alta.
-- **CAMMY** (filha): cabelo ruivo cacheado, óculos redondos, cardigã claro e colar.
-- **ISIS** (Ísis, filha caçula): cabelo escuro, tiara azul com laço e blusa rosa. É menor, então use `hy` mais baixo (~650).
-- **Jorge** (`jar` em `draw.py`): o levain no pote com pano xadrez, carente e sempre com fome.
+- `nano` (pai, pizzaiolo da casa): corte do lado esquerdo, então use `flip=True` e encoste à direita (cx ≈ 905), com `pillar(ctx, "right")`.
+- `cleide` (Cleideane, esposa): acenando, vai bem à esquerda (cx ≈ 300).
+- `cammy` (filha ruiva): corte do lado direito, então use `flip=True` e encoste à esquerda (cx ≈ 215), com `pillar(ctx, "left")`.
+- `isis` (Ísis, filha caçula): mãos no queixo; é menor, então funciona no centro ou à direita (cx ≈ 770).
+- **Jorge** (`jar` em `draw.py`): o levain no pote, carente e sempre com fome.
 
-Use `fam(ctx, x, hy, NANO, "expressão")`, depois `counter(ctx)` e `fam_hands(...)`. As expressões são `happy`, `worried`, `shocked`, `love`, `angry` e `smug`; para falar, use o parâmetro `mouth`.
-Os adereços são `pizza`, `plate_with_slice`, `slice_in_hand`, `ketchup`, `splat`, `broken_heart` e `logo`. Com `LOGO = True` no episódio, o logo da Famiglia Notari aparece no título.
-Personagens extras (amigos, vizinhos, avós) podem ser criados com o mesmo dicionário, mudando cores e estilo de cabelo (`short`, `long_straight`, `long_curly`, `kid`).
+Ordem de desenho: `background` → `av(...)` → `pillar(...)` → `counter` → adereços → efeitos → balões. A base de cada avatar fica escondida atrás do balcão.
+Os avatares têm expressão fixa, sorrindo. As emoções vêm dos efeitos (`shock_fx`, `exclaim_fx`, `tears_fx`, `anger_fx`, `gloom_fx`, além de `sweat`, `heart` e `broken_heart`) e da animação (`lift` para pular ou falar, `shake` para tremer, `squash` para impacto e `rot` para inclinar). Para apontar balões e efeitos, use `head_top`, `head_c` e `eye_pts`.
+Os adereços em `family.py` são `pizza`, `plate_with_slice`, `slice_in_hand`, `ketchup`, `splat`, `broken_heart` e `logo`. Use `LOGO = True` no episódio.
+Personagens extras (amigos, vizinhos, avós) podem ser desenhados com `fam(...)` de `family.py`, que tem o mesmo traço vetorial, mudando cores e estilo de cabelo.
 
-Os episódios de exemplo estão em `episodios/`. Prefira a família como elenco principal e use o Jorge como coadjuvante recorrente.
+Os episódios de referência são `episodios/2026-11-05-ultima-fatia.py` e `episodios/2026-11-05-ketchup.py`.

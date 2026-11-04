@@ -1,70 +1,56 @@
-"""Família + pizza: 48 horas de fermentação e... ketchup."""
+"""Família + pizza: 48 horas de fermentação e... ketchup — com os avatares reais."""
 import math
 from draw import *
-from family import *
+from family import pizza, ketchup, splat
+from avatars import *
 
 HOOK = "Ser pizzaiolo em casa é sofrer..."
 END_CARD = "Ketchup na pizza: pode ou não pode?"
 END_CARD_AT = 3.4
 LOGO = True
 
-L_X, R_X, HY = 280, 800, 560
-KID_HY = 650
-PZ_X, PZ_Y = 545, 975
+CL, NA = 300, 905          # Cleide à esquerda, Nano espelhado à direita
+CA, IS = 215, 770          # Cammy espelhada à esquerda, Ísis à direita
 
 
-def blink_at(t, *ms):
-    return 0.1 if any(m <= t < m + 0.15 for m in ms) else 1.0
+def talk_bob(t, a, b):
+    return 10 * abs(math.sin(t * 14)) if a <= t <= b else 0.0
 
 
-def talk(t, a, b):
-    return 0.5 + 0.5 * math.sin(t * 28) if a <= t <= b else 0.0
-
-
-def tears(ctx, hx, hy, t):
-    for side in (-1, 1):
-        for k in range(2):
-            ph = (t * 1.2 + k * 0.5) % 1.0
-            sweat(ctx, hx + side * 44, hy + 40 + 120 * ph, 0.55 * (1 - 0.4 * ph))
-
-
-# 1 — the proud pizzaiolo
+# 1 — o pizzaiolo orgulhoso
 S1 = 3.8
 
 
 def s1(ctx, t):
     background(ctx)
-    fam_body(ctx, L_X, HY, CLEIDE)
-    fam_body(ctx, R_X, HY, NANO)
-    fam_head(ctx, L_X, HY, CLEIDE, "love")
-    fam_head(ctx, R_X, HY, NANO, "love" if t > 1.8 else "happy", 1.0, talk(t, 0.45, 1.8), t)
+    av(ctx, "cleide", CL)
+    av(ctx, "nano", NA, flip=True, lift=talk_bob(t, 0.45, 1.8))
+    pillar(ctx, "right")
+    pillar(ctx, "left")
     counter(ctx)
-    fam_hands(ctx, L_X, HY, CLEIDE)
-    fam_hands(ctx, R_X, HY, NANO)
-    pizza(ctx, PZ_X, PZ_Y, 330, 8, steam_t=t)
-    bubble(ctx, "Pizza de levain: 48 horas de fermentação!", 1040, 50, 960, 74, (800, 420),
+    pizza(ctx, 620, 978, 340, 8, steam_t=t)
+    bubble(ctx, "Pizza de levain: 48 horas de fermentação!", 1040, 40, 960, 74,
+           head_top("nano", NA, flip=True),
            pop=ease_out_back((t - 0.3) / 0.3), chars=(t - 0.45) / 1.4, align="right")
 
 
-# 2 — the little critic
+# 2 — a pequena crítica
 S2 = 3.4
 
 
 def s2(ctx, t):
     background(ctx)
-    fam_body(ctx, L_X, KID_HY, ISIS)
-    fam_body(ctx, R_X, HY, CAMMY)
-    fam_head(ctx, L_X, KID_HY, ISIS, "happy", blink_at(t, 2.4), talk(t, 0.45, 1.4), t)
-    fam_head(ctx, R_X, HY, CAMMY, "smug" if t > 1.5 else "happy", blink_at(t, 0.9))
+    av(ctx, "cammy", CA, flip=True)
+    av(ctx, "isis", IS, lift=talk_bob(t, 0.45, 1.4))
+    pillar(ctx, "right")
+    pillar(ctx, "left")
     counter(ctx)
-    fam_hands(ctx, L_X, KID_HY, ISIS)
-    fam_hands(ctx, R_X, HY, CAMMY)
-    pizza(ctx, PZ_X, PZ_Y, 330, 8, steam_t=t)
-    bubble(ctx, "Papai... cadê o ketchup?", 40, 90, 700, 80, (300, 470),
-           pop=ease_out_back((t - 0.3) / 0.3), chars=(t - 0.45) / 0.9)
+    pizza(ctx, 470, 985, 330, 8, steam_t=t)
+    bubble(ctx, "Papai... cadê o ketchup?", 1040, 110, 760, 80, head_top("isis", IS),
+           pop=ease_out_back((t - 0.3) / 0.3), chars=(t - 0.45) / 0.9, align="right")
 
 
-# 3 — the horror
+# 3 — o horror
 S3 = 3.2
 
 
@@ -72,43 +58,41 @@ def s3(ctx, t):
     shake = 16 * math.sin(t * 55) * max(0.0, 1 - t / 0.7)
     lift = ease_out_back((t - 0.6) / 0.4)
     background(ctx)
-    fam_body(ctx, L_X, HY, CAMMY)
-    fam_body(ctx, R_X + shake, HY, NANO)
-    fam_head(ctx, L_X, HY, CAMMY, "smug")
-    fam_head(ctx, R_X + shake, HY, NANO, "shocked")
-    shock_marks(ctx, R_X + shake, HY, ease_out_back((t - 0.1) / 0.25))
+    av(ctx, "cammy", CA, flip=True)
+    av(ctx, "nano", NA, flip=True, shake=shake, squash=1 + 0.05 * math.sin(clamp(t / 0.3) * math.pi))
+    pillar(ctx, "right")
+    pillar(ctx, "left")
     counter(ctx)
-    fam_hands(ctx, L_X, HY, CAMMY, (-1,))
-    fam_hands(ctx, R_X + shake, HY, NANO)
-    pizza(ctx, PZ_X, PZ_Y, 330, 8)
-    # Cammy raises the ketchup
-    ketchup(ctx, L_X + 175, COUNTER_Y - 10 - 160 * lift, 0.85, 0.25 * lift)
-    circle(ctx, L_X + 175, COUNTER_Y - 30 - 160 * lift, 40)
-    fill_stroke(ctx, CAMMY["skin"])
-    bubble(ctx, "KETCHUP?!", 1040, 80, 900, 120, (800, 420),
+    pizza(ctx, 600, 985, 330, 8)
+    # Cammy levanta o ketchup
+    by = COUNTER_Y - 20 - 170 * lift
+    ketchup(ctx, 380, by, 0.85, 0.22 * lift)
+    hx, hy = head_c("nano", NA, flip=True)
+    shock_fx(ctx, hx + shake, hy, ease_out_back((t - 0.1) / 0.25), r0=230)
+    exclaim_fx(ctx, hx - 310, hy - 60, ease_out_back((t - 0.15) / 0.25))
+    bubble(ctx, "KETCHUP?!", 1040, 70, 900, 120, head_top("nano", NA, flip=True),
            pop=ease_out_back((t - 0.1) / 0.22), shake=shake, align="right")
 
 
-# 4 — Jorge understands
+# 4 — o Jorge entende
 S4 = 5.6
-JAR_X = 330
+JAR_X = 300
 
 
 def s4(ctx, t):
     background(ctx)
-    fam_body(ctx, R_X, HY, NANO)
-    fam_head(ctx, R_X, HY, NANO, "worried", 1.0, talk(t, 0.45, 1.5), t)
-    tears(ctx, R_X, HY, t)
+    av(ctx, "nano", NA, flip=True, lift=talk_bob(t, 0.45, 1.3))
+    pillar(ctx, "right")
+    pillar(ctx, "left")
     counter(ctx)
-    jar(ctx, JAR_X, 958, t, blink=blink_at(t, 1.6, 4.4))
-    fam_hands(ctx, R_X, HY, NANO)
-    # pizza covered in ketchup, in front
-    pizza(ctx, 590, 1010, 270, 8)
-    for k, (dx, dy) in enumerate(((-55, -8), (45, 2), (-5, 16))):
-        splat(ctx, 590 + dx, 1010 + dy, 0.75)
-    bubble(ctx, "48 horas...", 1040, 70, 600, 84, (800, 420),
+    jar(ctx, JAR_X, 958, t, blink=0.1 if 1.6 <= t < 1.75 or 4.4 <= t < 4.55 else 1.0)
+    tears_fx(ctx, eye_pts("nano", NA, flip=True), t)
+    pizza(ctx, 640, 1010, 270, 8)
+    for dx, dy in ((-55, -8), (45, 2), (-5, 16)):
+        splat(ctx, 640 + dx, 1010 + dy, 0.75)
+    bubble(ctx, "48 horas...", 1040, 70, 600, 84, head_top("nano", NA, flip=True),
            pop=ease_out_back((t - 0.3) / 0.3), chars=(t - 0.45) / 0.9, align="right")
-    bubble(ctx, "Eu sinto a sua dor.", 40, 410, 760, 64, (300, 590),
+    bubble(ctx, "Eu sinto a sua dor.", 50, 410, 760, 62, (290, 590),
            pop=ease_out_back((t - 2.0) / 0.3), chars=(t - 2.1) / 0.8)
 
 
